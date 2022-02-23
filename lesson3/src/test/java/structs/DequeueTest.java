@@ -99,7 +99,61 @@ class DequeueTest {
     }
 
     @Test
-    void testCyclingDequeue() {
+    void testHeadTailValues() {
+        assertTrue(dequeue.isEmpty());
+        assertEquals(0, dequeue.size());
+
+        for (int i = 0; i < CAPACITY; i++) {
+            dequeue.insert(i);
+        }
+        for (int i = 0; i < CAPACITY; i++) {
+            dequeue.remove();
+        }
+
+        assertTrue(dequeue.isEmpty());
+        assertEquals(0, dequeue.size());
+
+        assertEquals(0, dequeue.getHead());
+        assertEquals(4, dequeue.getTail());
+
+        dequeue.insert(1);
+        assertEquals(1, dequeue.size());
+        assertEquals(0, dequeue.getHead());
+        assertEquals(0, dequeue.getTail());
+
+        dequeue.insert(2);
+        assertEquals(2, dequeue.size());
+        assertEquals(0, dequeue.getHead());
+        assertEquals(1, dequeue.getTail());
+
+        dequeue.insert(3);
+        assertEquals(3, dequeue.size());
+        assertEquals(0, dequeue.getHead());
+        assertEquals(2, dequeue.getTail());
+
+        dequeue.insert(4);
+        assertEquals(4, dequeue.size());
+        assertEquals(0, dequeue.getHead());
+        assertEquals(3, dequeue.getTail());
+
+        dequeue.insert(5);
+        assertEquals(5, dequeue.size());
+        assertEquals(0, dequeue.getHead());
+        assertEquals(4, dequeue.getTail());
+
+        dequeue.remove();
+        assertEquals(4, dequeue.size());
+        assertEquals(1, dequeue.getHead());
+        assertEquals(4, dequeue.getTail());
+
+        dequeue.insert(6);
+        assertEquals(5, dequeue.size());
+        assertEquals(1, dequeue.getHead());
+        assertEquals(0, dequeue.getTail());
+    }
+
+    @Test
+    void testFullCyclingDequeue() {
         dequeue.insert(10); // head=0, tail=0
         assertEquals(0, dequeue.getHead());
         assertEquals(0, dequeue.getTail());
