@@ -1,3 +1,6 @@
+import lombok.Data;
+import lombok.RequiredArgsConstructor;
+
 import java.util.List;
 
 public interface Graph {
@@ -6,11 +9,9 @@ public interface Graph {
 
     boolean addEdge(String startLabel, String secondLabel, int weight);
 
-    List<Vertex> getMinDistance(String startVertex, String endVertex);
+    List<Vertex> getMinDistance(String startVertex);
 
     int getSize();
-
-    void display();
 
     /**
      * англ. Depth-first search, DFS
@@ -22,4 +23,10 @@ public interface Graph {
      */
     void bfs(String startLabel);
 
+    @Data
+    @RequiredArgsConstructor
+    class Pair<T, V> {
+        private final T first;
+        private final V second;
+    }
 }

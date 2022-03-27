@@ -1,6 +1,8 @@
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Queue;
 import java.util.Stack;
 
@@ -43,39 +45,54 @@ public class GraphImpl implements Graph {
         return -1;
     }
 
-    public List<Vertex> getMinDistance(String startVertex, String endVertex) {
-        visitedVertexes.clear();
-        int startIndex = indexOf(startVertex);
-
+    public List<Vertex> getMinDistance(String startVertexLabel) {
+        int startIndex = indexOf(startVertexLabel);
         if (startIndex == -1) {
-            throw new IllegalArgumentException("неверная вершина " + startVertex);
+            throw new IllegalArgumentException("неверная вершина " + startVertexLabel);
         }
 
-        Queue<Vertex> queue = new LinkedList<>();
-        Vertex vertex = vertexList.get(startIndex);
-        visitVertex(queue, vertex);
+        Integer[][] matrix = adjMatrix.clone();
+        Map<Integer, List<Vertex>> results = new HashMap<>();
 
-        while (!queue.isEmpty()) {
-            int currentIndex = vertexList.indexOf(queue.peek());
-            vertex = getNearUnvisitedVertex(currentIndex);
-            if (vertex != null) {
-                visitVertex(queue, vertex);
+        Stack<Vertex> stack = new Stack<>();
+        Vertex startVertex = vertexList.get(startIndex);
+        stack.add(startVertex);
+
+        List<Vertex> vertexes = initStartVertexes(startIndex);
+        int distance = 0;
+        while (!stack.isEmpty()) {
+            int currentIndex = vertexList.indexOf(stack.peek());
+            Pair<Vertex, Integer> vertexToDistance = getDistanceToNearestVertex(matrix, currentIndex);
+            if (vertexToDistance.getFirst() != null) {
+                stack.add(vertexToDistance.getFirst());
+                vertexes.add(vertexToDistance.getFirst());
+                distance += vertexToDistance.getSecond();
             } else {
-                queue.remove();
+                stack.pop();
+            }
+            if (stack.size() == 1) {
+                results.put(distance, vertexes);
+                distance = 0;
+                vertexes = initStartVertexes(startIndex);
             }
         }
 
-        return List.of();
+        return results.entrySet().stream()
+                .min(Map.Entry.comparingByKey())
+                .orElseThrow()
+                .getValue();
+    }
+
+    private List<Vertex> initStartVertexes(int startIndex) {
+        Vertex vertex = vertexList.get(startIndex);
+        List<Vertex> vertexes = new ArrayList<>();
+        vertexes.add(vertex);
+        return vertexes;
     }
 
     @Override
     public int getSize() {
         return vertexList.size();
-    }
-
-    @Override
-    public void display() {
-        System.out.println(this);
     }
 
     @Override
@@ -97,9 +114,7 @@ public class GraphImpl implements Graph {
     @Override
     public void dfs(String startLabel) {
         visitedVertexes.clear();
-
         int startIndex = indexOf(startLabel);
-
         if (startIndex == -1) {
             throw new IllegalArgumentException("неверная вершина " + startLabel);
         }
@@ -125,8 +140,18 @@ public class GraphImpl implements Graph {
                 return vertexList.get(i);
             }
         }
-
         return null;
+    }
+
+    private Pair<Vertex, Integer> getDistanceToNearestVertex(Integer[][] matrix, int currentIndex) {
+        for (int i = 0; i < getSize(); i++) {
+            if (matrix[currentIndex][i] != null) {
+                Integer distance = matrix[currentIndex][i];
+                matrix[currentIndex][i] = null;
+                return new Pair<>(vertexList.get(i), distance);
+            }
+        }
+        return new Pair<>(null, null);
     }
 
     private void visitAndPrintVertex(Stack<Vertex> stack, Vertex vertex) {
@@ -152,9 +177,7 @@ public class GraphImpl implements Graph {
     @Override
     public void bfs(String startLabel) {
         visitedVertexes.clear();
-
         int startIndex = indexOf(startLabel);
-
         if (startIndex == -1) {
             throw new IllegalArgumentException("неверная вершина " + startLabel);
         }
